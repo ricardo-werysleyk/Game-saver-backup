@@ -134,6 +134,7 @@ Pressione F
 * [ ] Configuração sem editar arquivos
 * [ ] Backup incremental
 * [ ] Restaurar backups
+* [ ] Forçar backups
 
 ---
 
