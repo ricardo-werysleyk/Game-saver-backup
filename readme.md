@@ -1,43 +1,94 @@
 # Game Save Backup
 
-Backup automático de saves de jogos no Windows utilizando Python.
+Backup automático de saves de jogos para Windows.
 
-O programa monitora processos em execução e, ao detectar que um jogo foi fechado, cria automaticamente um backup compactado do diretório de save configurado.
+O **Game Save Backup** monitora jogos em execução e cria automaticamente backups compactados dos saves quando o jogo é encerrado.
+
+O objetivo é evitar perda de progresso e tornar o processo de backup totalmente transparente para o jogador.
+
+---
+
+## Beta teste
+
+Utilize o arquivo executável na pasta dist para testar o programa.
 
 ## Funcionalidades
 
-* Monitoramento automático de jogos em execução
-* Backup automático ao fechar o jogo
-* Backup compactado (.zip)
+### Monitoramento
+
+* Monitoramento automático de processos de jogos
+* Detecção de abertura e fechamento do jogo
+* Detecção de troca rápida entre jogos
+
+### Backup
+
+* Backup automático ao encerrar o jogo
+* Backup manual pela interface
+* Compressão automática em `.zip`
 * Suporte a múltiplos jogos
-* Configuração simples via arquivo `jogos.txt`
+
+### Interface
+
+* Interface gráfica (GUI)
+* Adicionar jogos sem editar arquivos manualmente
+* Remover jogos diretamente pela aplicação
+* Seleção de executável (`.exe`) pelo explorador
+* Seleção de diretórios por interface
+
+### Sistema
+
+* Configuração persistida em `jogos.json`
 * Notificações nativas do Windows
+* Registro automático de erros
 * Baixo consumo de memória
-* Registro automático de erros em arquivo de log
 
 ---
 
-## Como funciona
+## Demonstração
 
-O programa verifica periodicamente os processos em execução.
+Fluxo básico:
 
-Quando detecta:
-
-* Jogo iniciou → apenas monitora
-* Jogo fechou → gera backup do save automaticamente
-
-Também detecta troca rápida entre jogos sem perder backups.
+```text
+Selecionar jogo
+↓
+Selecionar pasta de save
+↓
+Selecionar pasta de backup
+↓
+Iniciar monitoramento
+↓
+Jogar normalmente
+↓
+Fechar jogo
+↓
+Backup criado automaticamente
+```
 
 ---
 
-## Estrutura
+## Estrutura do projeto
 
-```txt
-project/
+```text
+GameSaveBackup/
 │
 ├── main.py
-├── backup.py
-├── jogos.txt
+│
+├── core/
+│   ├── backup.py
+│   ├── arquive_handling.py
+│   ├── notifications.py
+│   ├── log_handling.py
+│
+├── gui/
+│   └── main_window.py
+│
+├── models/
+│   ├── monitor.py
+│   └── jogo.py
+│
+├── data/
+│   └── jogos.json
+│
 └── README.md
 ```
 
@@ -49,13 +100,14 @@ Clone o repositório:
 
 ```bash
 git clone <url-do-repositorio>
+
 cd GameSaveBackup
 ```
 
 Instale dependências:
 
 ```bash
-pip install psutil winotify
+pip install -r requirements.txt
 ```
 
 Execute:
@@ -68,76 +120,125 @@ python main.py
 
 ## Configuração
 
-Edite o arquivo `jogos.txt`.
+Agora não é mais necessário editar arquivos manualmente.
+
+Pela interface:
+
+1. Clique em **Selecionar executável**
+2. Escolha o `.exe` do jogo
+3. Selecione a pasta do save
+4. Escolha o diretório de backup
+5. Clique em **Adicionar jogo**
+6. Inicie o monitoramento
+
+Os dados serão salvos automaticamente em:
+
+```text
+data/jogos.json
+```
+
+---
+
+## Arquivo de configuração
+
+Exemplo de `jogos.json`:
+
+```json
+[
+    {
+        "nome": "Valheim.exe",
+        "origem": "C:/Users/User/AppData/LocalLow/IronGate/Valheim",
+        "destino": "D:/GameBackups/Valheim"
+    },
+    {
+        "nome": "SpaceEngineers.exe",
+        "origem": "C:/Save",
+        "destino": "D:/Backups"
+    }
+]
+```
+
+---
+
+## Logs
+
+Erros encontrados durante execução são registrados automaticamente.
+
+Local:
+
+```text
+data/logs/log_erro.txt
+```
 
 Formato:
 
-```txt
-processo.exe,caminho_save,caminho_backup
-```
+```text
+[18-06-2026 21-35-10]
 
-Exemplo:
-
-```txt
-eurotrucks2.exe,C:\Users\User\Documents\Euro Truck Simulator 2\profiles,D:\Backup_games\ETS2
-
-SpaceEngineers.exe,C:\Users\User\AppData\Roaming\SpaceEngineers\Saves,D:\Backup_games\SpaceEngineers
+FileNotFoundError:
+Arquivo não encontrado
 ```
 
 ---
 
-## Uso
-
-Execute o programa.
-
-Ao fechar um jogo monitorado:
-
-* o save será compactado;
-* uma notificação aparecerá no Windows;
-* será possível abrir diretamente a pasta do backup.
-
-Para encerrar:
-
-```txt
-Pressione F
-```
-
----
-
-## Tecnologias
+## Tecnologias utilizadas
 
 * Python
+* tkinter
 * psutil
 * winotify
-* shutil
+* json
+* zipfile
 
 ---
 
 ## Roadmap
 
-### v1.1
+### v1.1 (Atual)
 
-* [ ] Histórico de backups
-* [ ] Arquivo de logs
-* [ ] Ignorar linhas inválidas do jogos.txt
-* [ ] Não gerar backup se save não mudou
+* [x] Interface gráfica
+* [x] Configuração via GUI
+* [x] jogos.txt → jogos.json
+* [x] Lista de jogos monitorados
+* [x] Backup manual
+* [x] Logs automáticos
+* [x] Seleção de diretórios
+* [x] Seleção automática do executável
+
+---
 
 ### v1.2
 
 * [ ] Executar em segundo plano
 * [ ] Inicializar junto com Windows
-* [ ] Ícone na bandeja do sistema
+* [ ] Ícone na bandeja
+* [ ] Barra de status
+* [ ] Configurações persistentes
+* [ ] Minimizar para tray
+
+---
+
+### v1.3
+
+* [ ] Histórico de backups
+* [ ] Agendamento de backups
+* [ ] Estatísticas de uso
+
+---
 
 ### v2.0
 
-* [ ] Interface gráfica
-* [ ] Configuração sem editar arquivos
 * [ ] Backup incremental
 * [ ] Restaurar backups
-* [ ] Forçar backups
+* [ ] Detectar alteração de save
+* [ ] Compactação configurável
 
 ---
 
 ## Licença
 
-MIT
+Distribuído sob licença MIT.
+
+---
+
+Feito com Python para nunca perder um save novamente.

@@ -1,5 +1,6 @@
 import psutil
 from copy import copy
+import os
 
 import core.arquive_handling as arquive
 import core.backup as bk
@@ -15,7 +16,15 @@ class Monitor:
         self.ultimoJogo = Jogo()
         self.jogoAberto = False
         self.jogando = False
+        self.PROCESSO = psutil.Process(os.getpid())
 
+    def memoria_consumida(self):
+        return (
+            self.PROCESSO.memory_info().rss
+            / 1024
+            / 1024
+        )
+    
     #Função responsável por varrer os processos em aberto do gerenciador de tafera do windows
     #Para ser mais eficiente, precarrega apenas o nome de todos os processos e retorna um conjunto (set)
     def varrerProcessos(self):
@@ -37,12 +46,14 @@ class Monitor:
         
         return False, self.JOGO_VAZIO
     
-    def salvarJogoNovo(self, novo_jogo: Jogo):
-        existe = any(
-            jogo.nome.lower()
-            == novo_jogo.nome.lower()
+    def verificaJogoJson(self, jogo_verif):
+        return  any(
+            jogo == jogo_verif
             for jogo in self.jogos
         )
+    
+    def salvarJogoNovo(self, novo_jogo: Jogo):
+        existe = self.verificaJogoJson(novo_jogo)
 
         if existe:
             return False
@@ -57,18 +68,26 @@ class Monitor:
 
         return True
         
-    def removerJogo(self, nome: str):
-        self.jogos = [
-            jogo
-            for jogo in self.jogos
-            if jogo.nome.lower()
-            != nome.lower()
-        ]
+    def removerJogo(self, jogo_rmv):
+        existe = self.verificaJogoJson(jogo_rmv)
+        
+        if not existe:
+            return False
+        
+        self.jogos.remove(
+            jogo_rmv
+        )
 
         arquive.salvarJogosJson(
             self.jogos
         )
         
+        return True
+    
+    def forcarBackup(self, jogo_bk):
+        existe = self.verificaJogoJson(jogo_bk)
+        if existe:
+            bk.backupStart(jogo_bk)
     
     def gameBackup(self):
         bk.backupStart(self.ultimoJogo)

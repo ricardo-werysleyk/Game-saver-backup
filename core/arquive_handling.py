@@ -1,12 +1,13 @@
 #modules
 import json
 from dataclasses import asdict
+import os
 
 #models
 from models.jogo import Jogo
 
 #core
-import core.error_handling as error
+import core.log_handling as log
 
 JOGOS_CONFIG = "data/jogos.json"
 
@@ -14,6 +15,11 @@ JOGOS_CONFIG = "data/jogos.json"
 #{nome: Nome do processo do jogo,origem: diretório origem do save game, destino : diretório onde será salvado o backup compactado}
 # {nome, origem, destino}
 def carregarJogosJson():
+    if not os.path.exists("data"):
+        os.mkdir("data")
+        with open(JOGOS_CONFIG, 'w', encoding='utf-8') as arquivo_json:
+            json.dump({}, arquivo_json)
+        
     with open(JOGOS_CONFIG, 'r', encoding='utf-8') as arquivo:
         game_data = json.load(arquivo)
         jogos = []
@@ -21,7 +27,7 @@ def carregarJogosJson():
             try:
                 jogos.append(Jogo(**game))
             except TypeError as e:
-                error.salvarErroLog(e)
+                log.salvarErroLog(e)
             
         return jogos
 

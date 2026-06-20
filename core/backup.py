@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 
 #core
-import core.error_handling as error
+import core.log_handling as log
 import core.notifications as nt
 from models.jogo import Jogo
 
@@ -37,5 +37,7 @@ def backupStart(game : Jogo):
             launch=game.destino
         )
         toast.show()
+        log.salvarBackupLog(game)
+        
     except Exception as e:
-        error.salvarErroLog(e)
+        log.salvarErroLog(e)

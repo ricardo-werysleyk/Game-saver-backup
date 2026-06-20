@@ -1,17 +1,17 @@
 [
     {
-        "nome": "eurotrucks2.exe",
-        "origem": "C:\\Users\\werys\\Documents\\Euro Truck Simulator 2\\profiles",
-        "destino": "D:\\Backup_games\\ETS2"
-    },
-    {
         "nome": "SpaceEngineers.exe",
         "origem": "C:\\Users\\werys\\AppData\\Roaming\\SpaceEngineers\\Saves",
         "destino": "D:\\Backup_games\\SpaceEngineers"
     },
     {
-        "nome": "Valheim",
-        "origem": "C:\\Valheim",
-        "destino": "D:\\backups"
+        "nome": "speed.exe",
+        "origem": "D:/nfsmw/Need For Speed Most Wanted REDUX 3.04 - Main/SAVE/NFS Most Wanted",
+        "destino": "D:/Backup_games/NFSMW"
+    },
+    {
+        "nome": "eurotrucks2.exe",
+        "origem": "C:/Users/werys/Documents/Euro Truck Simulator 2/profiles",
+        "destino": "D:/Backup_games/ETS2"
     }
 ]
