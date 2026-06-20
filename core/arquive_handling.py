@@ -1,5 +1,6 @@
 #modules
 import json
+from dataclasses import asdict
 
 #models
 from models.jogo import Jogo
@@ -23,3 +24,18 @@ def carregarJogosJson():
                 error.salvarErroLog(e)
             
         return jogos
+
+def salvarJogosJson(jogos):
+
+    with open(
+        JOGOS_CONFIG,
+        "w",
+        encoding="utf-8"
+    ) as arquivo:
+
+        json.dump(
+            [asdict(jogo) for jogo in jogos],
+            arquivo,
+            indent=4,
+            ensure_ascii=False
+        )

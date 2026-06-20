@@ -8,5 +8,10 @@
         "nome": "SpaceEngineers.exe",
         "origem": "C:\\Users\\werys\\AppData\\Roaming\\SpaceEngineers\\Saves",
         "destino": "D:\\Backup_games\\SpaceEngineers"
+    },
+    {
+        "nome": "Valheim",
+        "origem": "C:\\Valheim",
+        "destino": "D:\\backups"
     }
 ]

@@ -1,4 +1,5 @@
 import psutil
+from copy import copy
 
 import core.arquive_handling as arquive
 import core.backup as bk
@@ -36,6 +37,39 @@ class Monitor:
         
         return False, self.JOGO_VAZIO
     
+    def salvarJogoNovo(self, novo_jogo: Jogo):
+        existe = any(
+            jogo.nome.lower()
+            == novo_jogo.nome.lower()
+            for jogo in self.jogos
+        )
+
+        if existe:
+            return False
+
+        self.jogos.append(
+            novo_jogo
+        )
+
+        arquive.salvarJogosJson(
+            self.jogos
+        )
+
+        return True
+        
+    def removerJogo(self, nome: str):
+        self.jogos = [
+            jogo
+            for jogo in self.jogos
+            if jogo.nome.lower()
+            != nome.lower()
+        ]
+
+        arquive.salvarJogosJson(
+            self.jogos
+        )
+        
+    
     def gameBackup(self):
         bk.backupStart(self.ultimoJogo)
     
@@ -49,13 +83,13 @@ class Monitor:
             ):
                 print("Iniciando backup.")
                 self.gameBackup()
-                self.ultimoJogo = self.jogoAtual
+                self.ultimoJogo = copy(self.jogoAtual)
     
     def verificarFechamento(self):
         #Lógica de detecção de jogo aberto e se fechou
         if self.jogoAberto and not self.jogando:
             self.jogando = True
-            self.ultimoJogo = self.jogoAtual
+            self.ultimoJogo = copy(self.jogoAtual)
         elif not self.jogoAberto and self.jogando:
             print("Iniciando backup.")
             self.gameBackup()
@@ -63,20 +97,21 @@ class Monitor:
             self.jogando = False
     
     def obterEstado(self):
-        status = (
-            f"Jogando: {self.jogoAtual.nome_exibicao}"
-            if self.jogando
-            else "Aguardando..."
-        )
-        return status
+        return {
+            "jogando": self.jogando,
+            "status": (
+                f"Jogando: {self.jogoAtual.nome_exibicao}"
+                if self.jogando
+                else "Aguardando..."
+            ),
+            "jogo": self.jogoAtual
+        }
     
     def executar(self):
         self.jogoAberto, self.jogoAtual = self.verificaJogoAberto()        
         self.verificarTrocaJogo()
         self.verificarFechamento()
         
-        return {
-            "jogando": self.jogando,
-            "status": self.obterEstado(),
-            "jogo": self.jogoAtual
-        }
+        return self.obterEstado()
+        
+        
