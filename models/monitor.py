@@ -19,11 +19,7 @@ class Monitor:
         self.PROCESSO = psutil.Process(os.getpid())
 
     def memoria_consumida(self):
-        return (
-            self.PROCESSO.memory_info().rss
-            / 1024
-            / 1024
-        )
+        return (self.PROCESSO.memory_info().rss / 1024**2)
     
     #Função responsável por varrer os processos em aberto do gerenciador de tafera do windows
     #Para ser mais eficiente, precarrega apenas o nome de todos os processos e retorna um conjunto (set)
@@ -58,13 +54,9 @@ class Monitor:
         if existe:
             return False
 
-        self.jogos.append(
-            novo_jogo
-        )
+        self.jogos.append(novo_jogo)
 
-        arquive.salvarJogosJson(
-            self.jogos
-        )
+        arquive.salvarJogosJson(self.jogos)
 
         return True
         
@@ -74,13 +66,9 @@ class Monitor:
         if not existe:
             return False
         
-        self.jogos.remove(
-            jogo_rmv
-        )
+        self.jogos.remove(jogo_rmv)
 
-        arquive.salvarJogosJson(
-            self.jogos
-        )
+        arquive.salvarJogosJson(self.jogos)
         
         return True
     
@@ -121,7 +109,7 @@ class Monitor:
             "status": (
                 f"Jogando: {self.jogoAtual.nome_exibicao}"
                 if self.jogando
-                else "Aguardando..."
+                else "Status: Aguardando gameplay"
             ),
             "jogo": self.jogoAtual
         }

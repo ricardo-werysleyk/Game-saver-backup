@@ -31,14 +31,9 @@ def carregarJogosJson():
             
         return jogos
 
+#Função por salvar o arquivo json contendo as informações dos jogos
 def salvarJogosJson(jogos):
-
-    with open(
-        JOGOS_CONFIG,
-        "w",
-        encoding="utf-8"
-    ) as arquivo:
-
+    with open(JOGOS_CONFIG, "w",encoding="utf-8") as arquivo:
         json.dump(
             [asdict(jogo) for jogo in jogos],
             arquivo,

@@ -5,5 +5,6 @@ def notification(titulo : str,mensagem : str):
     return Notification(
         app_id="Game Save Backup",
         title=titulo,
-        msg=mensagem
+        msg=mensagem,
+        icon=r"c:\Users\werys\Documents\Projetos Python\Game-saver-backup\assets\main.png"
     )

@@ -14,17 +14,12 @@ def makeBackup(origem, destino):
     else:
         raise Exception("Origem inválida")
     if os.path.isdir(destino):
-        backupFolderDirectory =os.path.join(destino,backupFolderName)
+        backupFolderDirectory = os.path.join(destino,backupFolderName)
     else:
         raise Exception("Destino inválido")
 
-    print("\nCopiando...\n")
-
     #faz backup compactado
     shutil.make_archive(backupFolderDirectory,"zip",origem)
-
-    print("Backup concluído.")
-    print(backupFolderDirectory)
 
 #Função responsável por fazer o backup do save
 #@params game: nome do processo do jogo, origem: diretório raiz do save, destino: diretório de backup
