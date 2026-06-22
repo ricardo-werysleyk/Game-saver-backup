@@ -48,7 +48,7 @@ class App:
         
         #Configurações gerais da root
         self.root.title("Game Save Backup")
-        self.root.geometry("480x528")
+        self.root.geometry("512x560")
         self.root.iconbitmap("assets\\main.ico")
         self.root.config(bg=self._primaryColor)
         self.root.option_add("*Foreground", self.fontColor)
