@@ -209,25 +209,18 @@ Arquivo não encontrado
 
 ### v1.2
 
-* [ ] Executar em segundo plano
-* [ ] Inicializar junto com Windows
-* [ ] Ícone na bandeja
-* [ ] Barra de status
-* [ ] Configurações persistentes
-* [ ] Minimizar para tray
-
----
-
-### v1.3
-
-* [ ] Histórico de backups
-* [ ] Agendamento de backups
-* [ ] Estatísticas de uso
+* [X] Executar em segundo plano
+* [X] Histórico de backups
+* [X] Ícone na bandeja
+* [X] Display de status
+* [X] Configurações persistentes
+* [X] Minimizar para tray
 
 ---
 
 ### v2.0
 
+* [ ] Inicializar junto com Windows
 * [ ] Backup incremental
 * [ ] Restaurar backups
 * [ ] Detectar alteração de save

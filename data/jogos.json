@@ -10,11 +10,6 @@
         "destino": "D:/Backup_games/NFSMW"
     },
     {
-        "nome": "eurotrucks2.exe",
-        "origem": "C:/Users/werys/Documents/Euro Truck Simulator 2/profiles",
-        "destino": "D:/Backup_games/ETS2"
-    },
-    {
         "nome": " [ Ex: Valheim.exe ]",
         "origem": "C:/Users/werys/Pictures/sitio",
         "destino": "C:/Users/werys/Pictures/sitio"
@@ -28,5 +23,10 @@
         "nome": " [ Ex: Valheim.exe ",
         "origem": "C:/Users/werys/Pictures/sitio",
         "destino": "C:/Users/werys/Pictures/sitio"
+    },
+    {
+        "nome": "eurotrucks2.exe",
+        "origem": "C:/Users/werys/Documents/Euro Truck Simulator 2/profiles",
+        "destino": "D:/Backup_games/ETS2"
     }
 ]

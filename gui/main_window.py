@@ -1,21 +1,29 @@
 import tkinter as tk
 from models.jogo import Jogo
+from models.settings import Settings
 import core.notifications as nt
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
 import os
+from core.tray import Tray
 
 
 class App:
 
     def __init__(self, monitor):
         
+        #Settings
+        self.config = Settings()
+        # self.config.settings["iniciar_com_windows"] = True
+        # self.config.salvarConfig(self.config.settings)
+        
         #variáveis globais
         self.monitor = monitor
-        self.monitorando = False
-        self.tempoProcessamento = 100
-        
+        self.monitorando = self.config.settings["iniciar_monitoramento"]
+        self.tray = Tray(self)
+        self.iniciarMinimizado = self.config.settings["minimizar_para_tray"]
+
         #Style
         self.root = tk.Tk()
         
@@ -41,83 +49,175 @@ class App:
         #Configurações gerais da root
         self.root.title("Game Save Backup")
         self.root.geometry("480x528")
+        self.root.iconbitmap("assets\\main.ico")
         self.root.config(bg=self._primaryColor)
         self.root.option_add("*Foreground", self.fontColor)
         self.root.columnconfigure(0, weight=1)
-        # self.root.columnconfigure(1, weight=1)
+        self.root.columnconfigure(1, weight=9)
+        self.root.resizable(False, False)
+        self.root.protocol(
+            "WM_DELETE_WINDOW",
+            self.fecharJanela
+        )
+        
+        
+        #Botão de iniciar o monitoramento de jogos
+        self.btnPrinc_frame = tk.Frame(self.root, relief="solid",width=160,height=96)
+        self.btnPrinc_frame.grid(row=0, column=0 ,sticky="ew", padx=20, pady=8)
+        self.btnPrinc_frame.config(bg=self._primaryColor)
+        self.btnPrinc_frame.columnconfigure(0, weight=1)
+        self.btnPrinc_frame.grid_propagate(False)
+        self.btn_iniciar = tk.Button(
+            self.btnPrinc_frame,
+            text="Iniciar",
+            command=self.iniciar,
+            bg=self.btnColor,
+            cursor="hand2",
+            width=20
+        )
+        self.btn_iniciar.grid(
+            row=0,
+            column=0,
+            pady=10
+        )
+        #Botão de para o monitoramento de jogos
+        self.btn_parar = tk.Button(
+            self.btnPrinc_frame,
+            text="Parar",
+            command=self.parar,
+            bg=self.btnColor,
+            cursor="hand2",
+            width=20
+        )
+        self.btn_parar.grid(
+            row=1,
+            column=0,
+            pady=10
+        )
         
         #Frame que engloba as statísticas e botões de ação iniciar e parar monitoramento
-        self.stats_frame = tk.Frame(self.root, relief="solid")
-        self.stats_frame.grid(row=0, column=0,columnspan=2 ,sticky="ew", padx=20, pady=10)
-        self.stats_frame.config(bg=self._primaryColor)
+        self.stats_frame = tk.Frame(self.root, width=320,height=96,relief="ridge", bd=2)
+        self.stats_frame.grid(row=0, column=1,sticky="ew", padx=20, pady=8)
+        self.stats_frame.config(bg=self._secundaryColor)
         self.stats_frame.columnconfigure(0, weight=1)
-        self.stats_frame.columnconfigure(1, weight=1)
+        self.stats_frame.rowconfigure(0,weight=1)
+        self.stats_frame.rowconfigure(4,weight=1)
+        self.stats_frame.grid_propagate(False)
         
         #Label de status
         self.label_status = tk.Label(
             self.stats_frame,
             text="Status: Parado",
-            bg=self._primaryColor
+            bg=self._secundaryColor
         )
         self.label_status.grid(
-            row=0,
+            row=1,
             column=0,
-            columnspan=2,
-            pady=10
+            sticky="we"
         )
         #Label que indica o estado de monitoramento
         self.label_monitor = tk.Label(
             self.stats_frame,
             text="Monitor: Desligado",
-            bg=self._primaryColor
+            bg=self._secundaryColor
         )
         self.label_monitor.grid(
-            row=1,
+            row=2,
             column=0,
-            columnspan=2
+            sticky="we"
         )
         #Label que indica uso de memória RAM
         self.label_ram = tk.Label(
             self.stats_frame,
             text="Uso RAM: -- MB",
-            bg=self._primaryColor
+            bg=self._secundaryColor
         )
         self.label_ram.grid(
-            row=2,
-            column=0,
-            columnspan=2
-        )
-        #Botão de iniciar o monitoramento de jogos
-        self.btn_iniciar = tk.Button(
-            self.stats_frame,
-            text="Iniciar",
-            command=self.iniciar,
-            bg=self.btnColor
-        )
-        self.btn_iniciar.grid(
             row=3,
             column=0,
-            sticky="ew",
-            padx=10,
-            pady=20
+            sticky="we"
         )
-        #Botão de para o monitoramento de jogos
-        self.btn_parar = tk.Button(
-            self.stats_frame,
-            text="Parar",
-            command=self.parar,
-            bg=self.btnColor
+        
+        #checklboxes settings
+        self.checkBoxSettings_frame = tk.Frame(self.root, relief="solid")
+        self.checkBoxSettings_frame.grid(row=1, column=0, sticky="ew", padx=20)
+        self.checkBoxSettings_frame.config(bg=self._primaryColor)
+        self.checkBoxSettings_frame.columnconfigure(0, weight=1)
+        self.checkBoxSettings_frame.columnconfigure(1, weight=9)
+        
+        #Checkbox iniciar com windows
+        self.starWin_valor_check = tk.BooleanVar()
+        
+        def verificar_estado_starWin():
+            if self.starWin_valor_check.get():
+                self.config.settings["iniciar_com_windows"] = True
+            else:
+                self.config.settings["iniciar_com_windows"] = False
+            self.salvarConfigs()
+        
+        self.starWin_checkbox = tk.Checkbutton(
+            self.checkBoxSettings_frame,
+            variable=self.starWin_valor_check,
+            command=verificar_estado_starWin,
+            background=self._primaryColor, 
+            foreground=self._primaryColor,
+            cursor="hand2",
+            activebackground=self._primaryColor
         )
-        self.btn_parar.grid(
-            row=3,
+        self.starWin_checkbox.grid(
+            row=0,
+            column=0,
+            sticky="w"
+        )
+        self.labelCheckStartWin = tk.Label(
+            self.checkBoxSettings_frame,
+            text="Iniciar com windows",
+            bg=self._primaryColor
+        )
+        self.labelCheckStartWin.grid(
+            row=0,
             column=1,
-            sticky="ew",
-            padx=10
-        )        
+            sticky="w"
+        )
+        
+        #checkbox iniciar minimizado
+        self.starMin_valor_check = tk.BooleanVar()
+        
+        def verificar_estado_starMin():
+            if self.starMin_valor_check.get():
+                self.config.settings["minimizar_para_tray"] = True
+            else:
+                self.config.settings["minimizar_para_tray"] = False
+            self.salvarConfigs()
+        
+        self.starWin_checkbox = tk.Checkbutton(
+            self.checkBoxSettings_frame,
+            variable=self.starMin_valor_check,
+            command=verificar_estado_starMin,
+            background=self._primaryColor, 
+            foreground=self._primaryColor,
+            cursor="hand2",
+            activebackground=self._primaryColor
+        )
+        self.starWin_checkbox.grid(
+            row=1,
+            column=0,
+            sticky="w"
+        )
+        self.labelCheckStartWin = tk.Label(
+            self.checkBoxSettings_frame,
+            text="Iniciar minimizado",
+            bg=self._primaryColor
+        )
+        self.labelCheckStartWin.grid(
+            row=1,
+            column=1,
+            sticky="w"
+        )
         
         #Frame dos inputs nome, origem e destino
-        self.inputs_frame = tk.Frame(self.root, relief="solid")
-        self.inputs_frame.grid(row=1, column=0,columnspan=2 ,sticky="ew", padx=20, pady=10)
+        self.inputs_frame = tk.Frame(self.root, relief="ridge", bd=2)
+        self.inputs_frame.grid(row=2, column=0,columnspan=2 ,sticky="ew", padx=20, pady=8, ipady=4)
         self.inputs_frame.config(bg=self._primaryColor)
         self.inputs_frame.columnconfigure(0, weight=1)
         self.inputs_frame.columnconfigure(1, weight=8)
@@ -152,7 +252,8 @@ class App:
             self.inputs_frame,
             text="📂",
             command=self.selecionarExecutavel,
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_exe.grid(
             row=0,
@@ -193,7 +294,8 @@ class App:
                 self.selecionarDiretorio(
                     self.entry_origem
                 ),
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_origem.grid(
             row=1,
@@ -234,7 +336,8 @@ class App:
                 self.selecionarDiretorio(
                     self.entry_destino
                 ),
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_destino.grid(
             row=2,
@@ -248,7 +351,8 @@ class App:
             self.inputs_frame,
             text="Adicionar jogo",
             command=self.adicionar,
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_adicionar.grid(
             row=3,
@@ -258,44 +362,70 @@ class App:
         
         #Frame da lista de jogos cadastrados e botões de ação: Abrir save, Abrir backup, Fazer backup e Remover
         self.lista_jogos_frame = tk.Frame(self.root, relief="solid")
-        self.lista_jogos_frame.grid(row=2, column=0,columnspan=2 ,sticky="ew", padx=20, pady=10)
+        self.lista_jogos_frame.grid(row=3, column=0,columnspan=2 ,sticky="ew", padx=20, pady=4)
         self.lista_jogos_frame.config(bg=self._primaryColor)
         self.lista_jogos_frame.columnconfigure(0, weight=1)
-        self.lista_jogos_frame.columnconfigure(1, weight=1)
-        self.lista_jogos_frame.columnconfigure(2, weight=0)        
-        self.lista_jogos_scrollbar = ttk.Scrollbar(self.lista_jogos_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
-        self.lista_jogos_scrollbar.grid(row=0, column=2, sticky="ns")
-
+        self.lista_jogos_frame.columnconfigure(1, weight=0)
+        
+        self.label_listaJogos = tk.Label(
+            self.lista_jogos_frame,
+            text="Lista de jogos cadastrados",
+            bg=self._primaryColor
+        )
+        self.label_listaJogos.grid(
+            row=0,
+            column=0,
+            pady=4,
+            sticky="w"
+        )
+        
+        #Scrollbar da lista
+        self.lista_jogos_scrollbar = ttk.Scrollbar(
+            self.lista_jogos_frame, 
+            orient="vertical", 
+            style="Custom.Vertical.TScrollbar",
+            cursor="hand2"
+        )
+        self.lista_jogos_scrollbar.grid(row=1, column=1, sticky="ns")
+              
         #Lista de jogos em jogos.json
         self.lista = tk.Listbox(
             self.lista_jogos_frame,
             height=5,
             yscrollcommand=self.lista_jogos_scrollbar.set,
             # selectbackground=self._primaryColor,   # Cor de fundo quando selecionado
-            selectforeground=self._primaryColor   
+            selectforeground=self._primaryColor,
+            cursor="hand2"
         )
         self.lista.grid(
-            row=0,
+            row=1,
             column=0,
-            columnspan=2,
             sticky="ew"
         )
         self.lista.config(bg=self._primaryColor)
+        
         self.lista_jogos_scrollbar.config(command=self.lista.yview)
+        
+        self.btn_lista_jogos_frame = tk.Frame(self.root, relief="solid")
+        self.btn_lista_jogos_frame.grid(row=4, column=0,columnspan=2 ,sticky="ew", padx=20, pady=4)
+        self.btn_lista_jogos_frame.config(bg=self._primaryColor)
+        self.btn_lista_jogos_frame.columnconfigure(0, weight=1)
+        self.btn_lista_jogos_frame.columnconfigure(1, weight=1)
         
         #Botão que abri pasta do savegame de jogo selecionado na lista
         self.btn_abrir_origem = tk.Button(
-            self.lista_jogos_frame,
+            self.btn_lista_jogos_frame,
             text="📂 Abrir save",
             command=self.abrirOrigem,
             pady=2,
             padx=6,
             compound="left",
             anchor="center",
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_abrir_origem.grid(
-            row=2,
+            row=0,
             column=0,
             sticky="ew",
             pady=5,
@@ -304,17 +434,18 @@ class App:
         
         #Botão de forçar backup de jogo selecionado na lista
         self.btn_backup_now = tk.Button(
-            self.lista_jogos_frame,
+            self.btn_lista_jogos_frame,
             text="💾 Fazer backup",
             command=self.fazerBackup,
             pady=2,
             padx=6,
             compound="left",
             anchor="center",
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_backup_now.grid(
-            row=2,
+            row=0,
             column=1,
             sticky="ew",
             pady=5,
@@ -323,17 +454,18 @@ class App:
         
         #Botão que abri pasta do backup do jogo selecionado na lista
         self.btn_abrir_destino = tk.Button(
-            self.lista_jogos_frame,
+            self.btn_lista_jogos_frame,
             text="📂 Abrir backup",
             command=self.abrirDestino,
             pady=2,
             padx=6,
             compound="left",
             anchor="center",
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_abrir_destino.grid(
-            row=3,
+            row=1,
             column=0,
             sticky="ew",
             pady=5,
@@ -342,40 +474,54 @@ class App:
         
         #Botão de remover jogo selecionado do jogos.json
         self.btn_remover = tk.Button(
-            self.lista_jogos_frame,
+            self.btn_lista_jogos_frame,
             text="🗑 Remover",
             command=self.remover,
             pady=2,
             padx=6,
             compound="left",
             anchor="center",
-            bg=self.btnColor
+            bg=self.btnColor,
+            cursor="hand2"
         )
         self.btn_remover.grid(
-            row=3,
+            row=1,
             column=1,
             sticky="ew",
             pady=5,
             padx=2
         )        
         
+        if self.iniciarMinimizado:
+            self.root.after(
+                100,
+                self.fecharJanela
+            )
+            
         self.atualizarLista()
     
-    def atualizaLabelMonitor(self):
+    def atualizaInterfaceMonitor(self):
         self.label_monitor.config(text=f"Monitor: {'Ligado' if self.monitorando else 'Desligado'}")
+        self.starWin_valor_check.set(self.config.settings["iniciar_com_windows"])
+        self.starMin_valor_check.set(self.config.settings["minimizar_para_tray"])
+        
         if self.monitorando:
             self.btn_iniciar.config(
-                state="disabled"
+                state="disabled",
+                cursor="arrow"
             )
             self.btn_parar.config(
-                state="normal"
+                state="normal",
+                cursor="hand2"
             )
         else:
             self.btn_parar.config(
-                state="disabled"
+                state="disabled",
+                cursor="arrow"
             )
             self.btn_iniciar.config(
-                state="normal"
+                state="normal",
+                cursor="hand2"
             )
     
     def atualizaLabelRam(self):
@@ -389,16 +535,22 @@ class App:
         
         nt.notification("Monitor iniciado","Monitorando jogos").show()
         self.monitorando = True
-        self.atualizaLabelMonitor()
+        self.atualizaInterfaceMonitor()
+        self.config.settings["iniciar_monitoramento"] = True
+        self.salvarConfigs()
         self.loopMonitor()
         
     #Função do botão parar monitoramento
     def parar(self):
+        if not self.monitorando:
+            return
+        
         self.monitorando = False
         nt.notification("Monitor encerrado","Backup automático parado").show()
         self.label_status.config(text="Status: Parado")
-        self.atualizaLabelMonitor()
-    
+        self.atualizaInterfaceMonitor()
+        self.config.settings["iniciar_monitoramento"] = False
+        self.salvarConfigs()
     
     def atualizarStatusInterface(self, estado):
         self.label_status.config(
@@ -514,8 +666,29 @@ class App:
 
         self.atualizarStatusInterface(estado)
 
-        self.root.after(self.tempoProcessamento, self.loopMonitor)
+        self.root.after(self.config.intervalo_monitor_ms, self.loopMonitor)
 
-    def executar(self):
-        self.atualizaLabelMonitor()
+    def executar(self):        
+        self.atualizaInterfaceMonitor()
+        
+        if self.monitorando:
+            self.loopMonitor()
+        
         self.root.mainloop()
+        
+        
+    #Funções para configurar bandeja
+    def fecharJanela(self):
+        self.esconderJanela()
+        self.tray.iniciar()
+
+    def mostrarJanela(self):
+        self.root.deiconify()
+
+    def esconderJanela(self):
+        self.root.withdraw()
+    
+    #funções de configurações do programa
+    
+    def salvarConfigs(self):
+        self.config.salvarConfig(self.config.settings)

@@ -88,7 +88,6 @@ class Monitor:
             and self.ultimoJogo.nome 
             and self.jogoAtual.nome != self.ultimoJogo.nome
             ):
-                print("Iniciando backup.")
                 self.gameBackup()
                 self.ultimoJogo = copy(self.jogoAtual)
     
@@ -98,7 +97,6 @@ class Monitor:
             self.jogando = True
             self.ultimoJogo = copy(self.jogoAtual)
         elif not self.jogoAberto and self.jogando:
-            print("Iniciando backup.")
             self.gameBackup()
             self.ultimoJogo = self.JOGO_VAZIO
             self.jogando = False
