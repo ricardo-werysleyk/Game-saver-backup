@@ -4,6 +4,7 @@ import os
 
 import core.arquive_handling as arquive
 import core.backup as bk
+import core.codificador_hash as codificador
 from models.jogo import Jogo
 
 
@@ -17,6 +18,8 @@ class Monitor:
         self.jogoAberto = False
         self.jogando = False
         self.PROCESSO = psutil.Process(os.getpid())
+        self.hashJogoAtual = str()
+        self.hashUltimoJogo = str()
 
     def memoria_consumida(self):
         return (self.PROCESSO.memory_info().rss / 1024**2)
@@ -38,6 +41,8 @@ class Monitor:
         processos = self.varrerProcessos()
         for jogo in self.jogos:
             if jogo.nome.lower() in processos:
+                if self.ultimoJogo.origem:
+                    self.gameBackup()
                 return True, jogo
         
         return False, self.JOGO_VAZIO
@@ -78,7 +83,10 @@ class Monitor:
             bk.backupStart(jogo_bk)
     
     def gameBackup(self):
-        bk.backupStart(self.ultimoJogo)
+        self.hashUltimoJogo = codificador.calcular_hash_pasta(self.ultimoJogo.origem)
+        if self.hashJogoAtual != self.hashUltimoJogo:  
+            self.hashJogoAtual = self.hashUltimoJogo          
+            bk.backupStart(self.ultimoJogo)
     
     def verificarTrocaJogo(self):
         #Comparativo responsável por evitar que não faça o backup caso o jogo seja trocado
@@ -95,6 +103,7 @@ class Monitor:
         #Lógica de detecção de jogo aberto e se fechou
         if self.jogoAberto and not self.jogando:
             self.jogando = True
+            self.hashJogoAtual = codificador.calcular_hash_pasta(self.jogoAtual.origem)
             self.ultimoJogo = copy(self.jogoAtual)
         elif not self.jogoAberto and self.jogando:
             self.gameBackup()

@@ -28,5 +28,10 @@
         "nome": "eurotrucks2.exe",
         "origem": "C:/Users/werys/Documents/Euro Truck Simulator 2/profiles",
         "destino": "D:/Backup_games/ETS2"
+    },
+    {
+        "nome": "Stardew Valley.exe",
+        "origem": "C:/Users/werys/AppData/Roaming/StardewValley/Saves/Casalsafado_422716040",
+        "destino": "D:/Backup_games/Stardew/Fazenda casal safado"
     }
 ]
