@@ -1,4 +1,5 @@
 import os
+import glob
 import shutil
 from datetime import datetime
 
@@ -34,5 +35,35 @@ def backupStart(game : Jogo):
         toast.show()
         log.salvarBackupLog(game)
         
+    except Exception as e:
+        log.salvarErroLog(e)
+
+def arquivo_mais_recente(caminho_pasta):
+    padrao_busca = os.path.join(caminho_pasta, "*.zip")
+    arquivos = glob.glob(padrao_busca)
+    if not arquivos:
+        return None
+    
+    return max(arquivos, key=os.path.getmtime)
+
+def limpar_pasta(caminho_pasta):
+    if os.path.exists(caminho_pasta):
+        shutil.rmtree(caminho_pasta)
+    
+    os.makedirs(caminho_pasta)
+
+def restaurarBackup(game : Jogo):
+    backupDir = game.destino
+    backup = arquivo_mais_recente(backupDir)
+    
+    try:
+        limpar_pasta(game.origem)
+        shutil.unpack_archive(backup, game.origem)
+        toast = nt.notification("Game Save Backup",f"{game.nome_exibicao} restaurado")
+        toast.add_actions(
+            label="Abrir pasta",
+            launch=game.origem
+        )
+        toast.show()
     except Exception as e:
         log.salvarErroLog(e)

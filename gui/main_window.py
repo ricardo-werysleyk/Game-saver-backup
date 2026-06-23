@@ -7,6 +7,7 @@ from tkinter import messagebox
 from tkinter import ttk
 import os
 from core.tray import Tray
+import core.backup as bk
 
 
 class App:
@@ -23,7 +24,7 @@ class App:
         self.monitorando = self.config.settings["iniciar_monitoramento"]
         self.tray = Tray(self)
         self.iniciarMinimizado = self.config.settings["minimizar_para_tray"]
-
+        
         #Style
         self.root = tk.Tk()
         
@@ -48,12 +49,12 @@ class App:
         
         #Configurações gerais da root
         self.root.title("Game Save Backup")
-        self.root.geometry("512x560")
+        self.root.geometry("512x592")
         self.root.iconbitmap("assets\\main.ico")
         self.root.config(bg=self._primaryColor)
         self.root.option_add("*Foreground", self.fontColor)
         self.root.columnconfigure(0, weight=1)
-        self.root.columnconfigure(1, weight=9)
+        self.root.columnconfigure(1, weight=1)
         self.root.resizable(False, False)
         self.root.protocol(
             "WM_DELETE_WINDOW",
@@ -62,7 +63,7 @@ class App:
         
         
         #Botão de iniciar o monitoramento de jogos
-        self.btnPrinc_frame = tk.Frame(self.root, relief="solid",width=160,height=96)
+        self.btnPrinc_frame = tk.Frame(self.root, relief="solid",width=256,height=96)
         self.btnPrinc_frame.grid(row=0, column=0 ,sticky="ew", padx=20, pady=8)
         self.btnPrinc_frame.config(bg=self._primaryColor)
         self.btnPrinc_frame.columnconfigure(0, weight=1)
@@ -96,7 +97,7 @@ class App:
         )
         
         #Frame que engloba as statísticas e botões de ação iniciar e parar monitoramento
-        self.stats_frame = tk.Frame(self.root, width=320,height=96,relief="ridge", bd=2)
+        self.stats_frame = tk.Frame(self.root, width=256,height=96,relief="ridge", bd=2)
         self.stats_frame.grid(row=0, column=1,sticky="ew", padx=20, pady=8)
         self.stats_frame.config(bg=self._secundaryColor)
         self.stats_frame.columnconfigure(0, weight=1)
@@ -362,7 +363,7 @@ class App:
         
         #Frame da lista de jogos cadastrados e botões de ação: Abrir save, Abrir backup, Fazer backup e Remover
         self.lista_jogos_frame = tk.Frame(self.root, relief="solid")
-        self.lista_jogos_frame.grid(row=3, column=0,columnspan=2 ,sticky="ew", padx=20, pady=4)
+        self.lista_jogos_frame.grid(row=3, column=0,sticky="ew", padx=20, pady=4, columnspan=2)
         self.lista_jogos_frame.config(bg=self._primaryColor)
         self.lista_jogos_frame.columnconfigure(0, weight=1)
         self.lista_jogos_frame.columnconfigure(1, weight=0)
@@ -407,7 +408,7 @@ class App:
         self.lista_jogos_scrollbar.config(command=self.lista.yview)
         
         self.btn_lista_jogos_frame = tk.Frame(self.root, relief="solid")
-        self.btn_lista_jogos_frame.grid(row=4, column=0,columnspan=2 ,sticky="ew", padx=20, pady=4)
+        self.btn_lista_jogos_frame.grid(row=4, column=0,sticky="ew", padx=20, pady=4, columnspan=2)
         self.btn_lista_jogos_frame.config(bg=self._primaryColor)
         self.btn_lista_jogos_frame.columnconfigure(0, weight=1)
         self.btn_lista_jogos_frame.columnconfigure(1, weight=1)
@@ -415,7 +416,7 @@ class App:
         #Botão que abri pasta do savegame de jogo selecionado na lista
         self.btn_abrir_origem = tk.Button(
             self.btn_lista_jogos_frame,
-            text="📂 Abrir save",
+            text="Abrir save",
             command=self.abrirOrigem,
             pady=2,
             padx=6,
@@ -435,7 +436,7 @@ class App:
         #Botão de forçar backup de jogo selecionado na lista
         self.btn_backup_now = tk.Button(
             self.btn_lista_jogos_frame,
-            text="💾 Fazer backup",
+            text="Fazer backup",
             command=self.fazerBackup,
             pady=2,
             padx=6,
@@ -455,7 +456,7 @@ class App:
         #Botão que abri pasta do backup do jogo selecionado na lista
         self.btn_abrir_destino = tk.Button(
             self.btn_lista_jogos_frame,
-            text="📂 Abrir backup",
+            text="Abrir backup",
             command=self.abrirDestino,
             pady=2,
             padx=6,
@@ -475,7 +476,7 @@ class App:
         #Botão de remover jogo selecionado do jogos.json
         self.btn_remover = tk.Button(
             self.btn_lista_jogos_frame,
-            text="🗑 Remover",
+            text="Remover",
             command=self.remover,
             pady=2,
             padx=6,
@@ -490,7 +491,28 @@ class App:
             sticky="ew",
             pady=5,
             padx=2
-        )        
+        )      
+        
+        #Botão de restaurar backup mais recente
+        self.btn_restaurar = tk.Button(
+            self.btn_lista_jogos_frame,
+            text="Restaurar último backup",
+            command=self.restaurar,
+            pady=2,
+            padx=6,
+            compound="left",
+            anchor="center",
+            bg=self.btnColor,
+            cursor="hand2"
+        )
+        self.btn_restaurar.grid(
+            row=2,
+            column=0,
+            sticky="ew",
+            columnspan=2,
+            pady=5,
+            padx=2
+        )
         
         if self.iniciarMinimizado:
             self.root.after(
@@ -535,9 +557,9 @@ class App:
         
         nt.notification("Monitor iniciado","Monitorando jogos").show()
         self.monitorando = True
-        self.atualizaInterfaceMonitor()
         self.config.settings["iniciar_monitoramento"] = True
         self.salvarConfigs()
+        self.atualizaInterfaceMonitor()        
         self.loopMonitor()
         
     #Função do botão parar monitoramento
@@ -647,6 +669,13 @@ class App:
     def fazerBackup(self):
         jogo = self.verificaJogoLista()
         self.monitor.forcarBackup(jogo)
+    
+    def restaurar(self):
+        jogo = self.verificaJogoLista()
+        response = messagebox.askyesno("Restaurar backup", f"Deseja restaurar o backup do último save de {jogo.nome_exibicao}?")
+        
+        if response:
+            bk.restaurarBackup(jogo)
     
     def abrirOrigem(self):
         jogo = self.verificaJogoLista()        
