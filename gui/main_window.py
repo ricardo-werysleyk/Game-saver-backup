@@ -8,6 +8,8 @@ from tkinter import ttk
 import os
 from core.tray import Tray
 import core.backup as bk
+import core.startup as startup
+import core.arquive_handling as arquive
 
 
 class App:
@@ -47,10 +49,16 @@ class App:
         # self.root.option_add("*Entry.selectBackground", self._primaryColor)
         self.root.option_add("*Entry.selectForeground", self._primaryColor)
         
+        self.icone = tk.PhotoImage(
+            file=arquive.resource_path(
+                "assets/main.png"
+            )
+        )
+        
         #Configurações gerais da root
         self.root.title("Game Save Backup")
         self.root.geometry("512x592")
-        self.root.iconbitmap("assets\\main.ico")
+        self.root.iconphoto(True, self.icone)
         self.root.config(bg=self._primaryColor)
         self.root.option_add("*Foreground", self.fontColor)
         self.root.columnconfigure(0, weight=1)
@@ -166,8 +174,10 @@ class App:
         def verificar_estado_starWin():
             if self.starWin_valor_check.get():
                 self.config.settings["iniciar_com_windows"] = True
+                startup.criarAtalhoStartup()
             else:
                 self.config.settings["iniciar_com_windows"] = False
+                startup.removerAtalhoStartup()
             self.salvarConfigs()
         
         self.starWin_checkbox = tk.Checkbutton(
@@ -229,6 +239,12 @@ class App:
             column=1,
             sticky="w"
         )
+        
+        #frame de último backup ou statísticas
+        self.estatisticas_frame = tk.Frame(self.root, relief="solid")
+        self.estatisticas_frame.grid(row=1, column=1, sticky="nsew", padx=20)
+        self.estatisticas_frame.config(bg=self._secundaryColor)
+        self.estatisticas_frame.columnconfigure(0, weight=1)
         
         #Frame dos inputs nome, origem e destino
         self.inputs_frame = tk.Frame(self.root, relief="ridge", bd=2)
@@ -726,7 +742,8 @@ class App:
     #Funções para configurar bandeja
     def fecharJanela(self):
         self.esconderJanela()
-        self.tray.iniciar()
+        if self.tray.icon is None or not self.tray.icon.visible:
+            self.tray.iniciar()
 
     def mostrarJanela(self):
         self.root.deiconify()

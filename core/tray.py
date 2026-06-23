@@ -1,6 +1,7 @@
 import pystray
-import threading
+import os
 from PIL import Image
+import core.arquive_handling as arquive
 
 class Tray:
 
@@ -9,7 +10,11 @@ class Tray:
         self.icon = None
 
     def iniciar(self):
-        imagem = Image.open("assets/main.png")
+        imagem = Image.open(
+                arquive.resource_path(
+                "assets/main.png"
+            )
+        )
 
         self.icon = pystray.Icon(
             "GameSaveBackup",
@@ -22,15 +27,11 @@ class Tray:
             )
         )
 
-        # self.icon.run()
-        threading.Thread(
-            target=self.icon.run,
-            daemon=True
-        ).start()
+        self.icon.run_detached()
 
     def abrir(self):
         self.app.mostrarJanela()
-        self.icon.stop()
+        self.icon.visible = False
         
     def iniciarMonitor(self):
         self.app.iniciar()
@@ -40,7 +41,8 @@ class Tray:
 
     def sair(self):
         self.icon.stop()
-        self.app.root.after(
-            0,
-            self.app.root.destroy
-        )
+        # self.app.monitorando = False
+        # self.app.root.quit()
+        # self.app.root.destroy()
+        self.app.root.after(0, self.app.root.destroy)
+        os._exit(0)

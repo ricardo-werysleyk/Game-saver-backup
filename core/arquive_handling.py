@@ -2,6 +2,7 @@
 import json
 from dataclasses import asdict
 import os
+import sys
 
 #models
 from models.jogo import Jogo
@@ -13,12 +14,21 @@ JOGOS_CONFIG = "data/jogos.json"
 SETTINGS = "data/settings.json"
 SETTINGS_PATH = r"C:\Users\werys\Documents\Projetos Python\Game-saver-backup\data\settings.json"
 
+CONFIG_PADRAO = {
+    "iniciar_com_windows": False,
+    "iniciar_monitoramento": False,
+    "minimizar_para_tray": False,
+    "intervalo_monitor_ms": 500,
+    "total_backups": 10
+}
+
 #Função para carregar o arquivo json contendo as informações dos jogos
 #{nome: Nome do processo do jogo,origem: diretório origem do save game, destino : diretório onde será salvado o backup compactado}
 # {nome, origem, destino}
 def carregarJogosJson():
-    if not os.path.exists("data"):
-        os.mkdir("data")
+    if not os.path.exists(JOGOS_CONFIG):
+        if not os.path.exists("data"):
+            os.mkdir("data")
         with open(JOGOS_CONFIG, 'w', encoding='utf-8') as arquivo_json:
             json.dump({}, arquivo_json)
         
@@ -44,10 +54,11 @@ def salvarJogosJson(jogos):
         )
         
 def carregarSettingsJson():
-    if not os.path.exists("data"):
-        os.mkdir("data")
+    if not os.path.exists(SETTINGS):
+        if not os.path.exists("data"):
+            os.mkdir("data")
         with open(SETTINGS, 'w', encoding='utf-8') as arquivo_json:
-            json.dump({}, arquivo_json)
+            json.dump(CONFIG_PADRAO, arquivo_json)
         
     with open(SETTINGS, 'r', encoding='utf-8') as arquivo:        
         try:
@@ -65,3 +76,14 @@ def salvarSettingsJson(settings):
             indent=4,
             ensure_ascii=False
         )
+        
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(
+        base_path,
+        relative_path
+    )

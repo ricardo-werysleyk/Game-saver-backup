@@ -1,0 +1,7 @@
+{
+    "iniciar_com_windows": false,
+    "iniciar_monitoramento": false,
+    "minimizar_para_tray": false,
+    "intervalo_monitor_ms": 500,
+    "total_backups": 10
+}
