@@ -74,12 +74,12 @@ class App:
             command=self.iniciar,
             bg=self.btnColor,
             cursor="hand2",
-            width=20
+            width=30
         )
         self.btn_iniciar.grid(
             row=0,
             column=0,
-            pady=10
+            pady=3
         )
         #Botão de para o monitoramento de jogos
         self.btn_parar = tk.Button(
@@ -88,12 +88,26 @@ class App:
             command=self.parar,
             bg=self.btnColor,
             cursor="hand2",
-            width=20
+            width=30
         )
         self.btn_parar.grid(
             row=1,
             column=0,
-            pady=10
+            pady=3
+        )
+        #Botão que abre arquivo config.js
+        self.btn_config = tk.Button(
+            self.btnPrinc_frame,
+            text="Config",
+            command=self.abrirConfig,
+            bg=self.btnColor,
+            cursor="hand2",
+            width=30
+        )
+        self.btn_config.grid(
+            row=2,
+            column=0,
+            pady=3
         )
         
         #Frame que engloba as statísticas e botões de ação iniciar e parar monitoramento
@@ -573,6 +587,9 @@ class App:
         self.atualizaInterfaceMonitor()
         self.config.settings["iniciar_monitoramento"] = False
         self.salvarConfigs()
+    
+    def abrirConfig(self):
+        os.startfile(self.config.settingPath)
     
     def atualizarStatusInterface(self, estado):
         self.label_status.config(

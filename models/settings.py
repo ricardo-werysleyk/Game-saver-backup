@@ -8,6 +8,8 @@ class Settings:
     iniciar_monitoramento: bool = settings["iniciar_monitoramento"]
     minimizar_para_tray: bool = settings["minimizar_para_tray"]
     intervalo_monitor_ms: int = settings["intervalo_monitor_ms"]
+    total_backups: int = settings["total_backups"]
+    settingPath = arquive.SETTINGS_PATH
     
     def salvarConfig(self, config):
         arquive.salvarSettingsJson(config)

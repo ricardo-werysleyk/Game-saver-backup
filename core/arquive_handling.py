@@ -11,6 +11,7 @@ import core.log_handling as log
 
 JOGOS_CONFIG = "data/jogos.json"
 SETTINGS = "data/settings.json"
+SETTINGS_PATH = r"C:\Users\werys\Documents\Projetos Python\Game-saver-backup\data\settings.json"
 
 #Função para carregar o arquivo json contendo as informações dos jogos
 #{nome: Nome do processo do jogo,origem: diretório origem do save game, destino : diretório onde será salvado o backup compactado}

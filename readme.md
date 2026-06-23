@@ -222,7 +222,7 @@ Arquivo não encontrado
 
 * [ ] Inicializar junto com Windows
 * [ ] Backup incremental
-* [ ] Restaurar backups
+* [X] Restaurar backups
 * [ ] Detectar alteração de save
 * [ ] Compactação configurável
 

@@ -6,7 +6,11 @@ from datetime import datetime
 #core
 import core.log_handling as log
 import core.notifications as nt
+#models
 from models.jogo import Jogo
+from models.settings import Settings
+
+config = Settings()
 
 def makeBackup(origem, destino):
     currentTime = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
@@ -27,6 +31,11 @@ def makeBackup(origem, destino):
 def backupStart(game : Jogo):
     try:
         makeBackup(game.origem,game.destino)
+        
+        total_backups = sum(1 for item in os.scandir(game.destino) if item.is_file())
+        if total_backups > config.total_backups:
+            deletar_arquivo(game.destino)
+        
         toast = nt.notification("Game Save Backup",f"{game.nome_exibicao} salvo")
         toast.add_actions(
             label="Abrir pasta",
@@ -37,6 +46,18 @@ def backupStart(game : Jogo):
         
     except Exception as e:
         log.salvarErroLog(e)
+        
+def arquivo_mais_antigo(caminho_pasta):
+    padrao_busca = os.path.join(caminho_pasta, "*.zip")
+    arquivos = glob.glob(padrao_busca)
+    if not arquivos:
+        return None
+    
+    return min(arquivos, key=os.path.getmtime)
+
+def deletar_arquivo(caminho_pasta):
+    save_antigo = arquivo_mais_antigo(caminho_pasta)
+    os.remove(save_antigo)
 
 def arquivo_mais_recente(caminho_pasta):
     padrao_busca = os.path.join(caminho_pasta, "*.zip")
