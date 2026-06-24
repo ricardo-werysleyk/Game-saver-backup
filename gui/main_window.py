@@ -238,10 +238,35 @@ class App:
         )
         
         #frame de último backup ou statísticas
-        self.estatisticas_frame = tk.Frame(self.root, relief="solid")
+        self.estatisticas_frame = tk.Frame(self.root, relief="ridge", bd=2)
         self.estatisticas_frame.grid(row=1, column=1, sticky="nsew", padx=20)
         self.estatisticas_frame.config(bg=self._secundaryColor)
         self.estatisticas_frame.columnconfigure(0, weight=1)
+        self.estatisticas_frame.rowconfigure(0, weight=1)
+        self.estatisticas_frame.rowconfigure(1, weight=1)
+        self.estatisticas_frame.rowconfigure(2, weight=1)
+        self.estatisticas_frame.rowconfigure(3, weight=1)
+        
+        self.game_label_statistics = tk.Label(
+            self.estatisticas_frame,
+            text="🎮 Jogo --",
+            bg=self._secundaryColor
+        )
+        self.game_label_statistics.grid(
+            row=1,
+            column=0,
+            sticky="we"
+        )
+        self.lastBk_label_statistics = tk.Label(
+            self.estatisticas_frame,
+            text="Último backup: --",
+            bg=self._secundaryColor
+        )
+        self.lastBk_label_statistics.grid(
+            row=2,
+            column=0,
+            sticky="we"
+        )
         
         #Frame dos inputs nome, origem e destino
         self.inputs_frame = tk.Frame(self.root, relief="ridge", bd=2)
@@ -609,6 +634,14 @@ class App:
             text=estado["status"]
         )
     
+    def atualizarStatisticsInterface(self, estado):
+        self.game_label_statistics.config(
+            text=f"🎮 {estado["gameName"]}"
+        )
+        self.lastBk_label_statistics.config(
+            text=f"Último backup: {estado["time"]}"
+        )
+    
     def selecionarExecutavel(self):
         caminho = filedialog.askopenfilename(
             filetypes=[
@@ -720,12 +753,37 @@ class App:
             self.label_ram.config(text="Uso RAM: -- MB")
             return
 
-        self.atualizaLabelRam()
-        estado = self.monitor.executar()
+        try:            
+            self.atualizaLabelRam()
+        
+            estado = self.monitor.executar()
+            self.atualizarStatusInterface(estado)
+            self.atualizarStatisticsInterface(estado)
+        except Exception as e:
+            import traceback
 
-        self.atualizarStatusInterface(estado)
+            erro = traceback.format_exc()
 
-        self.root.after(self.config.intervalo_monitor_ms, self.loopMonitor)
+            try:
+                self.label_status.config(
+                    text="Erro no monitor"
+                )
+
+            except:
+                pass
+
+            with open(
+                "erro_gui.txt",
+                "a",
+                encoding="utf-8"
+            ) as f:
+
+                f.write(
+                    erro
+                )
+        
+        finally:
+            self.root.after(self.config.intervalo_monitor_ms, self.loopMonitor)
 
     def executar(self):        
         self.atualizaInterfaceMonitor()

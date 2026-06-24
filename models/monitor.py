@@ -1,6 +1,7 @@
 import psutil
 from copy import copy
 import os
+from datetime import datetime
 
 import core.arquive_handling as arquive
 import core.backup as bk
@@ -20,6 +21,7 @@ class Monitor:
         self.PROCESSO = psutil.Process(os.getpid())
         self.hashJogoAtual = str()
         self.hashUltimoJogo = str()
+        self.gameLastBackup = arquive.carregarLastGameJson()
 
     def memoria_consumida(self):
         return (self.PROCESSO.memory_info().rss / 1024**2)
@@ -81,12 +83,18 @@ class Monitor:
         existe = self.verificaJogoJson(jogo_bk)
         if existe:
             bk.backupStart(jogo_bk)
+            self.gameLastBackup["nome"] = jogo_bk.nome_exibicao
+            self.gameLastBackup["time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            arquive.salvarLastGameJson(self.gameLastBackup)
     
     def gameBackup(self):
         self.hashUltimoJogo = codificador.calcular_hash_pasta(self.ultimoJogo.origem)
         if self.hashJogoAtual != self.hashUltimoJogo:  
             self.hashJogoAtual = self.hashUltimoJogo          
             bk.backupStart(self.ultimoJogo)
+            self.gameLastBackup["nome"] = self.ultimoJogo.nome_exibicao
+            self.gameLastBackup["time"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            arquive.salvarLastGameJson(self.gameLastBackup)
     
     def verificarTrocaJogo(self):
         #Comparativo responsável por evitar que não faça o backup caso o jogo seja trocado
@@ -118,7 +126,9 @@ class Monitor:
                 if self.jogando
                 else "Status: Aguardando gameplay"
             ),
-            "jogo": self.jogoAtual
+            "jogo": self.jogoAtual,
+            "gameName": self.gameLastBackup["nome"].capitalize(),
+            "time": self.gameLastBackup["time"]
         }
     
     def executar(self):

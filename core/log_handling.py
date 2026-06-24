@@ -2,15 +2,29 @@ from datetime import datetime
 import traceback
 import os
 
+def get_appdata_path_log(relative_path):
+    """Gera o caminho seguro dentro da pasta AppData/Roaming do usuário ativo."""
+    # Retorna C:\Users\<Nome>\AppData\Roaming\GameSaveBackup
+    base_appdata = os.path.join(os.environ.get('APPDATA', os.path.expanduser('~')), 'GameSaveBackup')
+    
+    # Garante que a pasta do seu aplicativo e a subpasta 'data' existam
+    pasta_data = os.path.join(base_appdata, 'logs')
+    os.makedirs(pasta_data, exist_ok=True)
+    
+    return os.path.join(base_appdata, relative_path)
+
+LOGS = get_appdata_path_log("logs")
+LOG_ARQUIVE = get_appdata_path_log("logs/log_erro.txt")
+LOG_BACKUP = get_appdata_path_log("logs/log_backup.txt")
+
 def preLog():
-    os.makedirs("logs", exist_ok=True)
+    os.makedirs(LOGS, exist_ok=True)
     return datetime.now().strftime("%d-%m-%Y %H-%M-%S")
 
 def salvarErroLog(erro):
     currentTime = preLog()
-    nome_arquivo = "logs/log_erro.txt"
         
-    with open(nome_arquivo, "a", encoding="utf-8") as arquivo:
+    with open(LOG_ARQUIVE, "a", encoding="utf-8") as arquivo:
         arquivo.write(f"\n[{currentTime}]\n")
         arquivo.write(f"{type(erro).__name__}: {erro}\n")
         arquivo.write(
@@ -28,9 +42,8 @@ def salvarErroLog(erro):
 
 def salvarBackupLog(jogo):
     currentTime = preLog()
-    nome_arquivo = "logs/log_backup.txt"
         
-    with open(nome_arquivo, "a", encoding="utf-8") as arquivo:
+    with open(LOG_BACKUP, "a", encoding="utf-8") as arquivo:
         arquivo.write(
             f"\n[{currentTime}]\n"
         )
