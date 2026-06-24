@@ -14,10 +14,12 @@ config = Settings()
 
 def makeBackup(origem, destino):
     currentTime = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    
     if os.path.isdir(origem):
         backupFolderName = f"{os.path.basename(origem)}_{currentTime}"
     else:
         raise Exception("Origem inválida")
+    
     if os.path.isdir(destino):
         backupFolderDirectory = os.path.join(destino,backupFolderName)
     else:
@@ -30,9 +32,9 @@ def makeBackup(origem, destino):
 #@params game: nome do processo do jogo, origem: diretório raiz do save, destino: diretório de backup
 def backupStart(game : Jogo):
     try:
-        makeBackup(game.origem,game.destino)
-        
+        makeBackup(game.origem,game.destino)        
         total_backups = sum(1 for item in os.scandir(game.destino) if item.is_file())
+        
         if total_backups > config.total_backups:
             deletar_arquivo(game.destino)
         

@@ -18,8 +18,6 @@ class App:
         
         #Settings
         self.config = Settings()
-        # self.config.settings["iniciar_com_windows"] = True
-        # self.config.salvarConfig(self.config.settings)
         
         #variáveis globais
         self.monitor = monitor
@@ -67,8 +65,7 @@ class App:
         self.root.protocol(
             "WM_DELETE_WINDOW",
             self.fecharJanela
-        )
-        
+        )        
         
         #Botão de iniciar o monitoramento de jogos
         self.btnPrinc_frame = tk.Frame(self.root, relief="solid",width=256,height=96)
@@ -736,8 +733,7 @@ class App:
         if self.monitorando:
             self.loopMonitor()
         
-        self.root.mainloop()
-        
+        self.root.mainloop()        
         
     #Funções para configurar bandeja
     def fecharJanela(self):

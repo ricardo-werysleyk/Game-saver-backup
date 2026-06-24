@@ -1,6 +1,5 @@
 import os
 import hashlib
-import core.log_handling as log
 
 def calcular_hash_pasta(caminho_save):
     if not os.path.exists(caminho_save):

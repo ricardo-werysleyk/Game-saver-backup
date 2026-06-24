@@ -11,11 +11,8 @@ class Tray:
 
     def iniciar(self):
         imagem = Image.open(
-                arquive.resource_path(
-                "assets/main.png"
-            )
+                arquive.resource_path("assets/main.png")
         )
-
         self.icon = pystray.Icon(
             "GameSaveBackup",
             imagem,
@@ -26,7 +23,6 @@ class Tray:
                 pystray.MenuItem("Sair", self.sair)
             )
         )
-
         self.icon.run_detached()
 
     def abrir(self):
@@ -41,8 +37,5 @@ class Tray:
 
     def sair(self):
         self.icon.stop()
-        # self.app.monitorando = False
-        # self.app.root.quit()
-        # self.app.root.destroy()
         self.app.root.after(0, self.app.root.destroy)
         os._exit(0)

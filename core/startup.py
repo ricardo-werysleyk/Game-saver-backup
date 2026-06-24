@@ -21,8 +21,6 @@ def criarAtalhoStartup():
     
 def removerAtalhoStartup():
     startup = winshell.startup()
-
     caminho = os.path.join(startup, "Game Save Backup.lnk")
-
     if os.path.exists(caminho):
         os.remove(caminho)

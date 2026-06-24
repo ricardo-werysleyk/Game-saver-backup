@@ -220,10 +220,10 @@ Arquivo não encontrado
 
 ### v2.0
 
-* [ ] Inicializar junto com Windows
-* [ ] Backup incremental
+* [x] Inicializar junto com Windows
+* [x] Backup incremental
 * [X] Restaurar backups
-* [ ] Detectar alteração de save
+* [x] Detectar alteração de save
 * [ ] Compactação configurável
 
 ---

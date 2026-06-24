@@ -10,9 +10,21 @@ from models.jogo import Jogo
 #core
 import core.log_handling as log
 
-JOGOS_CONFIG = "data/jogos.json"
-SETTINGS = "data/settings.json"
-SETTINGS_PATH = r"C:\Users\werys\Documents\Projetos Python\Game-saver-backup\data\settings.json"
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(
+        base_path,
+        relative_path
+    )
+
+JOGOS_CONFIG = resource_path("data/jogos.json")
+SETTINGS = resource_path("data/settings.json")
+SETTINGS_PATH = resource_path("data/settings.json")
 
 CONFIG_PADRAO = {
     "iniciar_com_windows": False,
@@ -77,13 +89,3 @@ def salvarSettingsJson(settings):
             ensure_ascii=False
         )
         
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(
-        base_path,
-        relative_path
-    )
