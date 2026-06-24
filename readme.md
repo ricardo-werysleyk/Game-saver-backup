@@ -1,237 +1,162 @@
-# Game Save Backup
+# 🎮 Game Saver Backup v2.0
 
-Backup automático de saves de jogos para Windows.
-
-O **Game Save Backup** monitora jogos em execução e cria automaticamente backups compactados dos saves quando o jogo é encerrado.
-
-O objetivo é evitar perda de progresso e tornar o processo de backup totalmente transparente para o jogador.
+O **Game Save Backup** é uma ferramenta leve para Windows que monitora seus jogos em execução e cria cópias de segurança (.zip) automáticas dos seus saves assim que ocerrem mudanças neles. Nunca mais perca seu progresso por culpa de saves corrompidos, falhas no sistema, queda de energia ou crash de mods!
 
 ---
 
-## Beta teste
+## Como Instalar (Simples e Rápido)
 
-Utilize o arquivo executável na pasta dist para testar o programa.
+Não precisa instalar o Python para jogar. Siga os passos abaixo:
 
-## Funcionalidades
-
-### Monitoramento
-
-* Monitoramento automático de processos de jogos
-* Detecção de abertura e fechamento do jogo
-* Detecção de troca rápida entre jogos
-
-### Backup
-
-* Backup automático ao encerrar o jogo
-* Backup manual pela interface
-* Compressão automática em `.zip`
-* Suporte a múltiplos jogos
-
-### Interface
-
-* Interface gráfica (GUI)
-* Adicionar jogos sem editar arquivos manualmente
-* Remover jogos diretamente pela aplicação
-* Seleção de executável (`.exe`) pelo explorador
-* Seleção de diretórios por interface
-
-### Sistema
-
-* Configuração persistida em `jogos.json`
-* Notificações nativas do Windows
-* Registro automático de erros
-* Baixo consumo de memória
+1. Baixe o instalador oficial do programa clicando em **[[Link/Seção de Releases do seu GitHub](https://github.com/ricardo-werysleyk/Game-saver-backup/releases/tag/GameSaverBk2)]** (ou execute o arquivo `setup.exe` fornecido).
+2. Siga as instruções do assistente de instalação na tela.
+3. Pronto! O programa criará um atalho diretamente na sua **Área de Trabalho**.
 
 ---
 
-## Demonstração
+## Como Configurar seu Primeiro Jogo
 
-Fluxo básico:
+Configurar o monitoramento leva menos de 1 minuto:
 
-```text
-Selecionar jogo
-↓
-Selecionar pasta de save
-↓
-Selecionar pasta de backup
-↓
-Iniciar monitoramento
-↓
-Jogar normalmente
-↓
-Fechar jogo
-↓
-Backup criado automaticamente
-```
+1. **Selecione o Jogo**: Clique em *Selecionar executável* e escolha o arquivo `.exe` principal do seu jogo.
+2. **Pasta do Save**: Indique a pasta original onde o jogo salva o seu progresso (Ex: dentro de `Documents` ou `AppData`).
+3. **Pasta de Backup**: Escolha qualquer pasta do seu computador (ou HD Externo/Drive na Nuvem) onde quer guardar as cópias seguras.
+4. **Adicione**: Clique em *Adicionar jogo* e depois em *Iniciar monitoramento*.
+
+*Agora você pode jogar normalmente. Assim que alterações forem detectadas, o backup surgirá na pasta de destino de forma 100% silenciosa!*
 
 ---
 
-## Estrutura do projeto
+## Funcionalidades Principais
+
+* **Totalmente Automatizado**: Detecta sozinho quando o jogo abre e fecha.
+*  **Compactação Inteligente**: Salva os arquivos estruturados em arquivos `.zip` para economizar espaço.
+*  **Segundo Plano (System Tray)**: Minimize o aplicativo para a barra de tarefas (perto do relógio do Windows) para não atrapalhar sua jogatina.
+*  **Múltiplos Jogos**: Monitore quantos jogos você quiser ao mesmo tempo.
+*  **Inicialização com o Windows**: Configure o app para abrir junto com o sistema operacional e garanta que nenhum jogo fique sem proteção.
+
+---
+
+## Onde ficam salvas minhas configurações?
+
+Para garantir estabilidade e rodar sem a necessidade de privilégios de Administrador no Windows, seus dados de configuração e logs de erros ficam guardados de forma isolada e segura na sua pasta de usuário:
+
+📂 **Caminho**: `C:\Users\SEU_USUARIO\AppData\Roaming\GameSaveBackup\`
+
+---
+
+# Guia de Desenvolvimento (v2.0)
+
+Este é o guia técnico para desenvolvedores que desejam clonar, modificar, compilar ou contribuir com o projeto **Game Save Backup**.
+
+O projeto foi desenvolvido em **Python** utilizando **Tkinter** para a interface gráfica e **psutil** para a monitoração de processos assíncronos do Windows.
+
+---
+
+## Pré-requisitos
+
+Antes de começar, certifique-se de ter instalado em sua máquina:
+* Python 3.10 ou superior
+* Gerenciador de pacotes `pip`
+* **Inno Setup Compiler** (opcional, necessário apenas se quiser gerar o instalador `.exe`)
+
+---
+
+## Configuração do Ambiente de Desenvolvimento
+
+Siga os passos abaixo para clonar o repositório e configurar o ambiente virtual:
+
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com
+   cd Game-saver-backup
+   ```
+
+2. **Crie e ative um ambiente virtual (Recomendado):**
+   ```bash
+   python -m venv venv
+   # No Windows (PowerShell):
+   .\venv\Scripts\Activate.ps1
+   # No Windows (CMD):
+   .\venv\Scripts\activate.bat
+   ```
+
+3. **Instale as dependências do projeto:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Execute o projeto em modo de desenvolvimento:**
+   ```bash
+   python main.py
+   ```
+
+---
+
+## Estrutura de Diretórios
+
+O projeto segue uma arquitetura modular estruturada da seguinte forma:
 
 ```text
 GameSaveBackup/
-│
-├── main.py
-│
-├── core/
-│   ├── backup.py
-│   ├── arquive_handling.py
-│   ├── notifications.py
-│   ├── log_handling.py
-│
-├── gui/
-│   └── main_window.py
-│
-├── models/
-│   ├── monitor.py
-│   └── jogo.py
-│
-├── data/
-│   └── jogos.json
-│
-└── README.md
+├── main.py            # Ponto de entrada da aplicação
+├── main.spec          # Arquivo de configuração do PyInstaller
+├── core/              # Módulos principais de lógica de negócios
+│   ├── backup.py           # Lógica de compressão e backup em .zip
+│   ├── arquive_handling.py # Utilitários de manipulação de sistema de arquivos
+│   ├── notifications.py    # Integração com winotify (Notificações do Windows)
+│   └── log_handling.py     # Escrita de logs de erros assíncronos
+├── gui/               # Telas e componentes visuais
+│   └── main_window.py     # Interface gráfica em Tkinter
+├── models/            # Classes de modelagem de dados e threads
+│   ├── monitor.py         # Thread de monitoramento do psutil
+│   └── jogo.py            # Dataclass do objeto Jogo
+└── requirements.txt   # Lista de dependências do ecossistema Python
 ```
 
 ---
 
-## Instalação
+## Como Compilar e Gerar o Executável
 
-Clone o repositório:
+O processo de empacotamento é feito em duas etapas: geração do binário via PyInstaller e empacotamento via Inno Setup.
 
+### Passo 1: Gerar a pasta do Executável com PyInstaller
+Execute o comando abaixo na raiz do projeto para criar a pasta distribuível:
 ```bash
-git clone <url-do-repositorio>
-
-cd GameSaveBackup
+pyinstaller --onedir --windowed --icon=assets/main.ico --name="Game Saver Backup" --add-data "assets;assets" --hidden-import=pystray._win32 --hidden-import=PIL._tkinter_finder main.py
 ```
+*Este comando gerará a pasta `dist/main/` contendo o executável e a pasta interna de dependências `_internal`.*
 
-Instale dependências:
-
-```bash
-pip install -r requirements.txt
-```
-
-Execute:
-
-```bash
-python main.py
-```
-
----
-
-## Configuração
-
-Agora não é mais necessário editar arquivos manualmente.
-
-Pela interface:
-
-1. Clique em **Selecionar executável**
-2. Escolha o `.exe` do jogo
-3. Selecione a pasta do save
-4. Escolha o diretório de backup
-5. Clique em **Adicionar jogo**
-6. Inicie o monitoramento
-
-Os dados serão salvos automaticamente em:
-
-```text
-data/jogos.json
-```
+### Passo 2: Gerar o Instalador do Windows
+1. Abra o arquivo de script do **Inno Setup** (`.iss`) do seu instalador.
+2. Certifique-se de que a seção `[Files]` aponta corretamente para a pasta `_internal` sem desestruturá-la:
+   ```pascal
+   [Files]
+   Source: ".\(\dist\main\Game\) Saver Backup.exe"; DestDir: "{app}"; Flags: ignoreversion
+   Source: ".\dist\main\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
+   ```
+3. Compile o script no Inno Setup para gerar o instalador `setup.exe` final.
 
 ---
 
-## Arquivo de configuração
+## Persistência e Diretrizes de Escrita
 
-Exemplo de `jogos.json`:
+Para respeitar as diretivas de segurança do Windows e evitar erros `PermissionError (Errno 13)`, o software **não grava dados** na pasta de instalação (`C:\Program Files`). 
 
-```json
-[
-    {
-        "nome": "Valheim.exe",
-        "origem": "C:/Users/User/AppData/LocalLow/IronGate/Valheim",
-        "destino": "D:/GameBackups/Valheim"
-    },
-    {
-        "nome": "SpaceEngineers.exe",
-        "origem": "C:/Save",
-        "destino": "D:/Backups"
-    }
-]
-```
+Toda a persistência de estados (`jogos.json`, `settings.json`) e logs são redirecionados dinamicamente para o ambiente isolado do usuário corrente:
+* **Destino:** `%APPDATA%\GameSaveBackup\`
 
 ---
 
-## Logs
+## Próximos passos
 
-Erros encontrados durante execução são registrados automaticamente.
-
-Local:
-
-```text
-data/logs/log_erro.txt
-```
-
-Formato:
-
-```text
-[18-06-2026 21-35-10]
-
-FileNotFoundError:
-Arquivo não encontrado
-```
-
----
-
-## Tecnologias utilizadas
-
-* Python
-* tkinter
-* psutil
-* winotify
-* json
-* zipfile
-
----
-
-## Roadmap
-
-### v1.1 (Atual)
-
-* [x] Interface gráfica
-* [x] Configuração via GUI
-* [x] jogos.txt → jogos.json
-* [x] Lista de jogos monitorados
-* [x] Backup manual
-* [x] Logs automáticos
-* [x] Seleção de diretórios
-* [x] Seleção automática do executável
-
----
-
-### v1.2
-
-* [X] Executar em segundo plano
-* [X] Histórico de backups
-* [X] Ícone na bandeja
-* [X] Display de status
-* [X] Configurações persistentes
-* [X] Minimizar para tray
-
----
-
-### v2.0
-
-* [x] Inicializar junto com Windows
-* [x] Backup incremental
-* [X] Restaurar backups
-* [x] Detectar alteração de save
-* [ ] Compactação configurável
-
----
+- Estatísticas 
+	- Backups realizados: 241  
+	- Espaço utilizado: 14 GB  
+	- Jogos cadastrados: 8  
+	- Tempo monitorando: 214 h
+- Salvar na nuvem e compartilhar save entre máquinas
 
 ## Licença
 
-Distribuído sob licença MIT.
-
----
-
-Feito com Python para nunca perder um save novamente.
+Este repositório está sob a licença MIT. Sinta-se à vontade para abrir *Issues* ou enviar *Pull Requests* com melhorias no monitoramento de processos.
